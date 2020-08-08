@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,9 +27,16 @@ namespace SquidLogParser
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddDbContextPool<SquidLogContext>(options =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("SQUID_LOG_PARSER_APP_CONNECTION_STRING") ?? 
+                                       "server=localhost;database=squid_log;user=root;password=r00t";
+                options.UseMySQL(connectionString);
+            });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

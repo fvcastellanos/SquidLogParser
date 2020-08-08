@@ -10,7 +10,8 @@ namespace SquidLogParser.Domain
         public long Bytes { get; set; }
         public string Method { get; set; }
         public string Url { get; set; }
-        public string PeerHost { get; set; }
+        public string User { get; set; }
+        public string Peer { get; set; }
         public string Type { get; set; }
 
     }
