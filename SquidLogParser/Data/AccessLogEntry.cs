@@ -4,15 +4,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SquidLogParser.Data
 {
-    public class AccessLog
+    [Table("access_log_entry")]
+    public class AccessLogEntry
     {
         [Key]
         [Column("id")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]        
         public long Id { get; set; }
+        
+        [Column("hash", TypeName = "varchar(250)")]
+        public string Hash { get; set; }
 
         [Column("time", TypeName = "timestamp")]
         public DateTime Time { get; set; }
+
+        [Column("milliseconds")]
+        public int Milliseconds { get; set; }
 
         [Column("duration")]
         public long Duration { get; set; }

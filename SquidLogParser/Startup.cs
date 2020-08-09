@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SquidLogParser.Data;
+using SquidLogParser.AccessLog;
+using SquidLogParser.Services;
+using Microsoft.Extensions.Logging;
 
 namespace SquidLogParser
 {
@@ -34,6 +37,24 @@ namespace SquidLogParser
                                        "server=localhost;database=squid_log;user=root;password=r00t";
                 options.UseMySQL(connectionString);
             });
+
+            services.AddSingleton<IAccessLog>(service => {
+
+                var loggerFactory = service.GetService<ILoggerFactory>();
+                var accessLogFile = Environment.GetEnvironmentVariable("SQUID_ACCESS_LOG_FILE_PATH") ??
+                                    "/var/logs/squid/access.log";
+
+                return new AccessLogFile(loggerFactory.CreateLogger<AccessLogFile>(), accessLogFile);
+            });
+
+            services.AddSingleton<IAccessLogParser>(service => {
+
+                var loggerFactory = service.GetService<ILoggerFactory>();
+
+                return new AccessLogParser(loggerFactory.CreateLogger<AccessLogParser>());
+            });
+
+            services.AddScoped<LogService>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();

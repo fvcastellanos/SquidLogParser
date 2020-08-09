@@ -48,13 +48,17 @@ namespace SquidLogParser.Tests.Fixtures
         private static AccessEntry ConvertLogentry(string logEntry)
         {
             var fields = logEntry.Split(" ").ToList()
-                .Where(entry => !string.IsNullOrEmpty(entry))
+                .Where(text => !string.IsNullOrEmpty(text))
                 .ToArray();
+
+            var time = fields[0].Substring(0, 10);
+            var separatorPosition = fields[0].LastIndexOf(".");
+            var millis = fields[0].Substring(separatorPosition + 1);
 
             return new AccessEntry()
             {
-                Time = double.Parse(fields[0]),
-                Elapsed = double.Parse(fields[1]),
+                Time = long.Parse(time),
+                Elapsed = int.Parse(millis),
                 RemoteHost = fields[2],
                 Status = fields[3],
                 Bytes = long.Parse(fields[4]),
