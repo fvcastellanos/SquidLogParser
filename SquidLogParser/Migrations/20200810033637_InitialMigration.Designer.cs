@@ -9,7 +9,7 @@ using SquidLogParser.Data;
 namespace SquidLogParser.Migrations
 {
     [DbContext(typeof(SquidLogContext))]
-    [Migration("20200809030258_InitialMigration")]
+    [Migration("20200810033637_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,10 @@ namespace SquidLogParser.Migrations
                     b.Property<long>("Duration")
                         .HasColumnName("duration")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Hash")
+                        .HasColumnName("hash")
+                        .HasColumnType("varchar(250)");
 
                     b.Property<int>("Milliseconds")
                         .HasColumnName("milliseconds")
@@ -86,6 +90,31 @@ namespace SquidLogParser.Migrations
                         .HasName("idx_access_log_url");
 
                     b.ToTable("access_log_entry");
+                });
+
+            modelBuilder.Entity("SquidLogParser.Data.LogProcessHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LinesProcessed")
+                        .HasColumnName("lines_processed")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Processed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("processed")
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Processed")
+                        .HasName("idx_log_process_history_processed");
+
+                    b.ToTable("log_process_history");
                 });
 #pragma warning restore 612, 618
         }

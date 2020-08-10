@@ -29,9 +29,15 @@ namespace SquidLogParser.Services
         public void IngestLogs()
         {
             try {
+
+                _logger.LogInformation("looking for previous processed logs");
+                var linesProcessed = GetLinesProcessed();
+
+                _logger.LogInformation("the following logs have been already processed: {0}", linesProcessed);
+
                 _logger.LogInformation("getting logs from file");
 
-                var textLogs = _accessLog.GetLogs();
+                var textLogs = GetLogs(linesProcessed);
                 var entryLogs = _accessLogParser.ParseLogs(textLogs);
 
                 _logger.LogInformation("storing logs into DB");
@@ -47,12 +53,26 @@ namespace SquidLogParser.Services
             }
         }
 
-        public IEnumerable<AccessLogEntry> GetFoo()
-        {
-            return _dbContext.AccessLogs;
-        }
-
         // ------------------------------------------------------------------------------------------------
+
+        private IEnumerable<string> GetLogs(long linesProcessed)
+        {
+            long processedLogs = 0;
+            IEnumerable<string> textLogs;
+            if (linesProcessed == 0)
+            {
+                textLogs = _accessLog.GetLogs();
+                processedLogs = textLogs.Count();
+            }
+            else {
+                textLogs = _accessLog.GetLogs(linesProcessed);
+                processedLogs = linesProcessed + textLogs.Count();
+            }
+
+            SaveProcessedLog(processedLogs);
+
+            return textLogs;
+        }
 
         private IEnumerable<AccessLogEntry> BuildAccessLog(IEnumerable<AccessEntry> accessEntryLogs)
         {
@@ -81,6 +101,25 @@ namespace SquidLogParser.Services
         {
             var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(time);
             return dateTimeOffset.UtcDateTime;
+        }
+
+        private long GetLinesProcessed()
+        {
+            return  _dbContext.LogProcessHistories
+                .OrderByDescending(history => history.Id)
+                .Select(history => history.LinesProcessed)
+                .FirstOrDefault();
+        }
+
+        private void SaveProcessedLog(long lastLine)
+        {
+            var history = new LogProcessHistory()
+            {
+                LinesProcessed = lastLine
+            };
+
+            _dbContext.LogProcessHistories.Add(history);
+            _dbContext.SaveChanges();
         }
     }
 }

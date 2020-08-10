@@ -19,6 +19,17 @@ namespace SquidLogParser.Tests.Fixtures
             };
         }
 
+        public static IEnumerable<string> ReadLogsTrimmed()
+        {
+            return new List<string>()
+            {
+                "1596340902.296    239 192.168.0.132 TCP_TUNNEL/200 6150 CONNECT edge.activity.windows.com:443 - HIER_DIRECT/20.36.219.28 -",
+                "1596340902.494     12 192.168.0.132 TAG_NONE/503 0 CONNECT c.msn.com:443 - HIER_NONE/- -",
+                "1596340902.499     15 192.168.0.132 TAG_NONE/503 0 CONNECT otf.msn.com:443 - HIER_NONE/- -"
+            };
+        }
+
+
         public static string WriteLogs()
         {            
             var tempFile = Path.GetTempFileName();

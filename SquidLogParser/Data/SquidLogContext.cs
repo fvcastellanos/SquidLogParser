@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace SquidLogParser.Data
@@ -5,6 +6,7 @@ namespace SquidLogParser.Data
     public class SquidLogContext : DbContext
     {
         public virtual DbSet<AccessLogEntry> AccessLogs { get; set; }
+        public virtual DbSet<LogProcessHistory> LogProcessHistories { get; set; }
 
         public SquidLogContext(DbContextOptions<SquidLogContext> dbContext) : base(dbContext)
         {
@@ -32,6 +34,16 @@ namespace SquidLogParser.Data
             modelBuilder.Entity<AccessLogEntry>()
                 .HasIndex(p => p.Bytes)
                 .HasName("idx_access_bytes");
+
+            // LogProcessHistory
+
+            modelBuilder.Entity<LogProcessHistory>()
+                .Property(p => p.Processed)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            modelBuilder.Entity<LogProcessHistory>()
+                .HasIndex(p => p.Processed)
+                .HasName("idx_log_process_history_processed");
         }
     }
 }

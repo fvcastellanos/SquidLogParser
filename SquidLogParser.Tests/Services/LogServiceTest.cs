@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Moq;
 using Moq.EntityFrameworkCore;
@@ -32,21 +33,105 @@ namespace SquidLogParser.Tests.Services
         }
 
         [Test]
-        public void IgestLogsTest()
+        public void TestIgestFullLogs()
         {
-            _accessLogMock.Setup(accessLog => accessLog.GetLogs())
-                .Returns(LogFileFixture.ReadLogs());
-
-            DbContextMock.Setup(context => context.AccessLogs)
-                .ReturnsDbSet(new List<AccessLogEntry>());
-
-            DbContextMock.Setup(context => context.AccessLogs.AddRange(It.IsAny<IEnumerable<AccessLogEntry>>()));
-            DbContextMock.Setup(context => context.SaveChanges());
+            ExpectFullLogs();
+            ExpectEmtpyDbSets();
+            ExpectSaveLogEntries();
+            ExpectSaveProcessHistory();
 
             _logService.IngestLogs();
 
+            VerifyDbContext();
+            VerifyFullLogs();
+        }
+
+        [Test]
+        public void TestVerifyIngestFromIndex()
+        {
+            ExpectLogsUsingStartIndex();
+            ExpectLogProcessHistories();
+            ExpectSaveLogEntries();
+            ExpectSaveProcessHistory();
+
+            _logService.IngestLogs();
+
+            VerifyDbContext();
+            VerifyLogsUsingStartIndex();
+        }
+
+        // --------------------------------------------------------------------------------------------------
+
+        private void ExpectFullLogs()
+        {
+            _accessLogMock.Setup(accessLog => accessLog.GetLogs())
+                .Returns(LogFileFixture.ReadLogs());
+        }
+
+        private void ExpectLogsUsingStartIndex()
+        {
+            _accessLogMock.Setup(accessLog => accessLog.GetLogs(It.IsAny<long>()))
+                .Returns(LogFileFixture.ReadLogsTrimmed());
+        }
+
+        private void ExpectEmtpyDbSets()
+        {
+            DbContextMock.Setup(context => context.AccessLogs)
+                .ReturnsDbSet(new List<AccessLogEntry>());
+
+            DbContextMock.Setup(context => context.LogProcessHistories)
+                .ReturnsDbSet(new List<LogProcessHistory>());
+        }
+
+        private void ExpectLogProcessHistories()
+        {
+            DbContextMock.Setup(context => context.AccessLogs)
+                .ReturnsDbSet(new List<AccessLogEntry>());
+
+            DbContextMock.Setup(context => context.LogProcessHistories)
+                .ReturnsDbSet(BuildLogProcessHistoryList());
+        }
+
+        private void ExpectSaveLogEntries()
+        {
+            DbContextMock.Setup(context => context.AccessLogs.AddRange(It.IsAny<IEnumerable<AccessLogEntry>>()));
+            DbContextMock.Setup(context => context.SaveChanges());
+        }
+
+        private void ExpectSaveProcessHistory()
+        {
+            DbContextMock.Setup(context => context.LogProcessHistories.Add(It.IsAny<LogProcessHistory>()));
+            DbContextMock.Setup(context => context.SaveChanges());
+        }
+
+        private void VerifyDbContext()
+        {
             DbContextMock.Verify(context => context.AccessLogs.AddRange(It.IsAny<IEnumerable<AccessLogEntry>>()));
-            DbContextMock.Verify(context => context.SaveChanges());
+            DbContextMock.Verify(context => context.LogProcessHistories);
+            DbContextMock.Verify(context => context.SaveChanges());            
+        }
+
+        private void VerifyFullLogs()
+        {
+            _accessLogMock.Setup(accessLog => accessLog.GetLogs());
+        }
+
+        private void VerifyLogsUsingStartIndex()
+        {
+            _accessLogMock.Setup(accessLog => accessLog.GetLogs(It.IsAny<long>()));
+        }
+
+        private IEnumerable<LogProcessHistory> BuildLogProcessHistoryList()
+        {
+            return new List<LogProcessHistory>()
+            {
+                new LogProcessHistory()
+                {
+                    Id = 0,
+                    LinesProcessed = 2,
+                    Processed = DateTime.Now
+                }
+            };
         }
     }    
 }

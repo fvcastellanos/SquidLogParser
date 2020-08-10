@@ -9,7 +9,7 @@ namespace SquidLogParser.Data
     {
         [Key]
         [Column("id")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]        
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         
         [Column("hash", TypeName = "varchar(250)")]

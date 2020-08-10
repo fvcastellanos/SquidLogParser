@@ -33,5 +33,23 @@ namespace SquidLogParser.Tests.AccessLog
             logs.Should()
                 .BeEquivalentTo(LogFileFixture.ReadLogs());
         }
+
+        [Test]
+        public void TestGetLogsFromStartIndex()
+        {
+            var logs = _accessLog.GetLogs(2);
+
+            logs.Should()
+                .BeEquivalentTo(LogFileFixture.ReadLogsTrimmed());
+        }
+
+        [Test]
+        public void TestGetLogResource()
+        {
+            var logResource = _accessLog.GetLogResource();
+
+            logResource.Should()
+                .Be(_logsFile);
+        }
     }
 }
