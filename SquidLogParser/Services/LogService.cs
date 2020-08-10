@@ -26,7 +26,7 @@ namespace SquidLogParser.Services
             _dbContext = dbContext;
         }
 
-        public void IngestLogs()
+        public long IngestLogs()
         {
             try {
 
@@ -46,10 +46,17 @@ namespace SquidLogParser.Services
 
                 _dbContext.AccessLogs.AddRange(entities);
                 _dbContext.SaveChanges();
+
+                var processedLogs = entryLogs.Count();
+                _logger.LogInformation("logs processed: {0}", processedLogs);
+
+                return processedLogs;
             }
             catch (Exception ex)
             {
                 _logger.LogError("can't process logs - ", ex);
+
+                return 0;
             }
         }
 

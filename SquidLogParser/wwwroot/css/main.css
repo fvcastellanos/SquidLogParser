@@ -2,6 +2,10 @@
     margin-top: 1.5em;
 }
 
+.top-separator {
+    margin-top: 1em;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
