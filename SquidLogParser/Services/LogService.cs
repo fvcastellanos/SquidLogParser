@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using Microsoft.Extensions.Logging;
 using SquidLogParser.AccessLog;
 using SquidLogParser.Data;
@@ -26,7 +27,7 @@ namespace SquidLogParser.Services
             _dbContext = dbContext;
         }
 
-        public long IngestLogs()
+        public Either<string, long> IngestLogs()
         {
             try {
 
@@ -55,8 +56,7 @@ namespace SquidLogParser.Services
             catch (Exception ex)
             {
                 _logger.LogError("can't process logs - ", ex);
-
-                return 0;
+                return string.Format("Can't process log resource: {0}", _accessLog.GetLogResource());
             }
         }
 
