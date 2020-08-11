@@ -1,8 +1,10 @@
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using SquidLogParser.Services;
+using SquidLogParser.AccessLog;
+using SquidLogParser.Tests.Fixtures;
 
-namespace SquidLogParser.Tests.Services
+namespace SquidLogParser.Tests.AccessLog
 {
     [TestFixture]
     public class AccessLogParserTest
@@ -19,7 +21,10 @@ namespace SquidLogParser.Tests.Services
         [Test]
         public void TestParseFile()
         {
-            _accessLogParser.ParseFile(@"C:\Users\fvcg\Desktop\access.log");
+            var entries = _accessLogParser.ParseLogs(LogFileFixture.ReadLogs());
+
+            entries.Should()
+                .BeEquivalentTo(LogFileFixture.GetAccessEntries());
         }
     }
 }

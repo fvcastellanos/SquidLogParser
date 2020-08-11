@@ -1,0 +1,37 @@
+@inherits ProcessBase
+
+@page "/process"
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h2>Process Logs</h2>
+            <p>Manually Process Access Logs</p>
+            <button class="btn btn-primary" @onclick="ProcessLogs">
+                Process Logs
+            </button>
+            @if (DisplayProcessMessage)
+            {
+                <div class="top-separator">
+                    <p>
+                        Started to process logs, please wait, it can take a while
+                    </p>
+                </div>
+            }
+            @if (DisplaySuccessMessage)
+            {
+                <div class="top-separator alert alert-dismissible alert-success">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>@ProcessedLogs</strong> Logs were successfully processed
+                </div>                
+            }
+            @if (DisplayErrorMessage)
+            {
+                <div class="alert alert-dismissible alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    @ErrorMessage
+                </div>                
+            }
+        </div>
+    </div>
+</div>
