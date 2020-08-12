@@ -1,0 +1,33 @@
+@inherits SitesBase
+
+@page "/sites"
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h2>Display Sites</h2>
+            <p>Show visited sites information</p>
+            <div class="top-separator">
+                <table class="table table-striped">
+                    <thead>
+                        <th>Url</th>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Count</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in VisitedSites)
+                        {
+                            <tr>
+                                <td>@site.Url</td>
+                                <td>@site.Time</td>
+                                <td>@site.ClientAddress</td>
+                                <td>@site.Count</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
