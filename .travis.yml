@@ -1,0 +1,22 @@
+language: csharp
+mono: none
+dotnet: 3.1
+
+addons:
+  hosts:
+    - mysql-host
+ 
+services:
+  - docker
+
+before_install:
+  - docker run -d --name mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=r00t mysql:8
+
+jobs:
+  include:
+    - stage: unit-tests
+      script:
+        - dotnet restore
+        - dotnet build
+        - dotnet test -v n
+  
