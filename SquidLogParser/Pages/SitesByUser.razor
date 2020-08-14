@@ -1,31 +1,30 @@
-@inherits SitesBase
+@inherits SitesByUserBase
 
-@page "/sites"
+@page "/sites-by-users"
 
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-10">
-            <h2>Display Sites</h2>
-            <p>Show visited sites information</p>
+            <h2>Display Sites by User</h2>
             <div class="top-separator">
                 <fieldset>
                     <div class="form-group">
-                        <label for="top">Rows</label>
-                        <select class="custom-select" id="top" @onchange="TopRowChange">
-                            <option selected="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
+                        <label for="users">Users</label>
+                        <select class="custom-select" id="users" @bind="SelectedUser">
+                            @foreach (var user in UserList)
+                            {
+                                <option value="@user">@user</option>
+                            }
                         </select>
                     </div>
-                </fieldset>                
+                </fieldset>        
+                <input type="button" class="btn btn-primary" value="Query" @onclick="PerformQuery" />        
             </div>
             <div class="top-separator">
                 <table class="table table-striped">
                     <thead>
                         <th>Url</th>
                         <th>Date</th>
-                        <th>Client</th>
                         <th>Count</th>
                     </thead>
                     <tbody>
@@ -43,6 +42,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 </div>

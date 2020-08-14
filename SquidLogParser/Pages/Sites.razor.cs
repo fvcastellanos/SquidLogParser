@@ -7,6 +7,8 @@ namespace SquidLogParser.Pages
 {
     public class SitesBase: ComponentBase
     {
+        private const int DefaultTopRows = 10;
+
         [Inject]
         protected QueryLogService QueryLogService { get; set; }
 
@@ -14,16 +16,25 @@ namespace SquidLogParser.Pages
 
         protected string ErrorMessage;
 
+        protected int TopRows;
+
         protected override void OnInitialized()
         {
+            TopRows = DefaultTopRows;
             GetTopVisitedSites();
+        }
+
+        public void TopRowChange(ChangeEventArgs e)
+        {
+            int rows = int.Parse(e.Value.ToString());
+            GetTopVisitedSites(rows);
         }
 
         // ------------------------------------------------------------------------------------
 
-        private void GetTopVisitedSites()
+        private void GetTopVisitedSites(int top = DefaultTopRows)
         {
-            var result = QueryLogService.GetTopVisitedSites();
+            var result = QueryLogService.GetTopVisitedSites(top);
 
             result.Match(right => {
                 VisitedSites = right;

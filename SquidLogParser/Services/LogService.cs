@@ -106,7 +106,7 @@ namespace SquidLogParser.Services
 
         private DateTime FromUnixTime(long time)
         {
-            var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(time);
+            var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(time);
             return dateTimeOffset.UtcDateTime;
         }
 
