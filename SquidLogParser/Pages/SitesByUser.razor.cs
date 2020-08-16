@@ -5,25 +5,30 @@ using SquidLogParser.Services;
 
 namespace SquidLogParser.Pages
 {
-    public class SitesByUserBase: ComponentBase
+    public class SitesByUserBase: PageBase
     {
         [Inject]
         protected QueryLogService QueryLogService { get; set; }
+
+        [Parameter]
+        public string ParameterUser { get; set; }
 
         protected IEnumerable<string> UserList;
 
         protected IEnumerable<AccessLogView> VisitedSites;
 
-        protected string ErrorMessage;
-
         protected string SelectedUser;
 
         protected int TopRows;
+
+        protected int LastDays;
 
         protected override void OnInitialized()
         {
             VisitedSites = new List<AccessLogView>();
             TopRows = 10;
+            LastDays = 30;
+            VerifyParameter();
             GetUsers();
         }
 
@@ -36,23 +41,30 @@ namespace SquidLogParser.Pages
 
         private void GetUsers()
         {
+            HideErrorMessage();
             var result = QueryLogService.GetUsers();
 
             result.Match(right => {
                 UserList = right;
-            }, left => {
-                ErrorMessage = left;
-            });
+            }, ShowErrorMessage);
         }
 
         private void GetVisitedSites()
         {
-            var result = QueryLogService.GetTopSitesByUser(SelectedUser, TopRows);
+            HideErrorMessage();
+            var result = QueryLogService.GetTopSitesByUser(SelectedUser, TopRows, LastDays);
             result.Match(right => {
                 VisitedSites = right;
-            }, left => {
-                ErrorMessage = left;
-            });            
+            }, ShowErrorMessage);            
+        }
+
+        private void VerifyParameter()
+        {
+            if (!string.IsNullOrEmpty(ParameterUser))
+            {
+                SelectedUser = ParameterUser.Replace("-", ".");
+                GetVisitedSites();
+            }
         }
     }
 }

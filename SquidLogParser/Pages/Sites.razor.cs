@@ -5,42 +5,47 @@ using SquidLogParser.Services;
 
 namespace SquidLogParser.Pages
 {
-    public class SitesBase: ComponentBase
+    public class SitesBase: PageBase
     {
-        private const int DefaultTopRows = 10;
-
         [Inject]
         protected QueryLogService QueryLogService { get; set; }
 
         protected IEnumerable<AccessLogView> VisitedSites;
 
-        protected string ErrorMessage;
-
         protected int TopRows;
+
+        protected int LastDays;
 
         protected override void OnInitialized()
         {
-            TopRows = DefaultTopRows;
+            TopRows = 10;
+            LastDays = 30;
+            HideErrorMessage();
             GetTopVisitedSites();
         }
 
-        public void TopRowChange(ChangeEventArgs e)
+        public void TopRowChange(ChangeEventArgs eventArgs)
         {
-            int rows = int.Parse(e.Value.ToString());
-            GetTopVisitedSites(rows);
+            TopRows = int.Parse(eventArgs.Value.ToString());
+            GetTopVisitedSites();
+        }
+
+        public void LastDaysChange(ChangeEventArgs eventArgs)
+        {
+            LastDays = int.Parse(eventArgs.Value.ToString());
+            GetTopVisitedSites();
         }
 
         // ------------------------------------------------------------------------------------
 
-        private void GetTopVisitedSites(int top = DefaultTopRows)
+        private void GetTopVisitedSites()
         {
-            var result = QueryLogService.GetTopVisitedSitesLastNDays(top);
+            HideErrorMessage();
+            var result = QueryLogService.GetTopVisitedSitesLastNDays(TopRows, LastDays);
 
             result.Match(right => {
                 VisitedSites = right;
-            }, left => {
-                ErrorMessage = left;
-            });
+            }, ShowErrorMessage);
         }
     }
 }

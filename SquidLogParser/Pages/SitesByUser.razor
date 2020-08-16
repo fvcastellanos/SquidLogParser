@@ -1,11 +1,13 @@
 @inherits SitesByUserBase
 
+@page "/sites-by-users/{ParameterUser}"
 @page "/sites-by-users"
 
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-10">
-            <h2>Display Sites by User</h2>
+            <h2>Sites by User</h2>
+            <p>Display information about sites visited by an user in the last [30, 60, 90, 120, 180] days</p>
             <div class="top-separator">
                 <fieldset>
                     <div class="form-group">
@@ -16,6 +18,16 @@
                             {
                                 <option value="@user">@user</option>
                             }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="top">Days</label>
+                        <select class="custom-select" id="top" @bind="LastDays">
+                            <option selected="30">30</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -30,6 +42,16 @@
                 </fieldset>        
                 <input type="button" class="btn btn-primary" value="Query" @onclick="PerformQuery" />        
             </div>
+            @if (DisplayErrorMessage)
+            {
+                <div class="top-separator">
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        @ErrorMessage
+                    </div>                
+                </div>
+            }
+
             <div class="top-separator">
                 <table class="table table-striped">
                     <thead>
