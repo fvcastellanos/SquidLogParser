@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SquidLogParser.Data;
 using SquidLogParser.Domain;
@@ -20,21 +19,17 @@ namespace SquidLogParser.Services
             _dbContext = dbContext;
         }
 
-        public Either<string, IEnumerable<AccessLogView>> GetTopVisitedSites(int top = 10)
+        public Either<string, IEnumerable<AccessLogView>> GetTopVisitedSitesLastNDays(int top = 10, int days = 30)
         {
             try
             {
                 var queryResult = from accessLog in _dbContext.AccessLogs
+                    where accessLog.Time >= LastNDays(days)
                     group accessLog by new { 
                         accessLog.Url, 
-                        accessLog.Time, 
-                        accessLog.Duration, 
+                        accessLog.Time.Date, 
                         accessLog.ClientAddress,
-                        accessLog.Bytes,
-                        accessLog.RequestMethod,
-                        accessLog.Peer,
-                        accessLog.Type,
-                        accessLog.ResultCode
+                        accessLog.RequestMethod
                     } into groupedLogs
                     orderby groupedLogs.Count() descending
                     select new {
@@ -46,40 +41,31 @@ namespace SquidLogParser.Services
                     .Select(result => new AccessLogView()
                     {
                         Url = result.Key.Url,
-                        Time = result.Key.Time,
-                        Duration = result.Key.Duration,
+                        Time = result.Key.Date,
                         ClientAddress = result.Key.ClientAddress,
-                        Bytes = result.Key.Bytes,
                         RequestMethod = result.Key.RequestMethod,
-                        Peer = result.Key.Peer,
-                        Type = result.Key.Type,
-                        ResultCode = result.Key.ResultCode,
                         Count = result.Count                        
                     }).Take(top)
                     .ToList();                    
             }
             catch(Exception ex)
             {
-                _logger.LogError("can't get most visited sites - ", ex);
+                _logger.LogError("can't get most visited sites - {0}", ex);
                 return string.Format("Can't get top: {0} visited sites", top);
             }
         }
 
-        public Either<string, IEnumerable<AccessLogView>> GetTopSitesByUser(string user, int top = 10)
+        public Either<string, IEnumerable<AccessLogView>> GetTopSitesByUser(string user, int top = 10, int days = 30)
         {
             try 
             {
                 var queryResult = from accessLog in _dbContext.AccessLogs
                     where accessLog.ClientAddress.Equals(user)
+                        && accessLog.Time >= LastNDays(days)
                     group accessLog by new { 
                         accessLog.Url, 
-                        accessLog.Time, 
-                        accessLog.Duration, 
-                        accessLog.Bytes,
+                        accessLog.Time.Date, 
                         accessLog.RequestMethod,
-                        accessLog.Peer,
-                        accessLog.Type,
-                        accessLog.ResultCode
                     } into groupedLogs
                     orderby groupedLogs.Count() descending
                     select new {
@@ -91,13 +77,8 @@ namespace SquidLogParser.Services
                     .Select(result => new AccessLogView()
                     {
                         Url = result.Key.Url,
-                        Time = result.Key.Time,
-                        Duration = result.Key.Duration,
-                        Bytes = result.Key.Bytes,
+                        Time = result.Key.Date,
                         RequestMethod = result.Key.RequestMethod,
-                        Peer = result.Key.Peer,
-                        Type = result.Key.Type,
-                        ResultCode = result.Key.ResultCode,
                         Count = result.Count                        
                     }).Take(top)
                     .ToList();                    
@@ -136,6 +117,11 @@ namespace SquidLogParser.Services
                 _logger.LogError("can't get users - ", ex);
                 return "Can't get users";
             }
+        }
+
+        private DateTime LastNDays(int days)
+        {
+            return DateTime.Today.AddDays(days * -1);
         }
     }
 }

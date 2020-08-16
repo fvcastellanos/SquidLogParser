@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-10">
             <h2>Display Sites</h2>
-            <p>Show visited sites information</p>
+            <p>Display information about sites visited in the last 30 days</p>
             <div class="top-separator">
                 <fieldset>
                     <div class="form-group">
@@ -26,6 +26,7 @@
                         <th>Url</th>
                         <th>Date</th>
                         <th>Client</th>
+                        <th>Request Method</th>
                         <th>Count</th>
                     </thead>
                     <tbody>
@@ -33,10 +34,11 @@
                         {
                             <tr>
                                 <td>@site.Url</td>
-                                <td>@site.Time</td>
+                                <td>@site.Time.ToShortDateString()</td>
                                 <td>
                                     <NavLink href="@site.ClientAddress.Replace(".", "-")">@site.ClientAddress</NavLink>
                                 </td>
+                                <td>@site.RequestMethod</td>
                                 <td>@site.Count</td>
                             </tr>
                         }

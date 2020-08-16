@@ -9,12 +9,22 @@
             <div class="top-separator">
                 <fieldset>
                     <div class="form-group">
-                        <label for="users">Users</label>
+                        <label for="users">User</label>
                         <select class="custom-select" id="users" @bind="SelectedUser">
+                                <option value="">Select user</option>
                             @foreach (var user in UserList)
                             {
                                 <option value="@user">@user</option>
                             }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="top">Rows</label>
+                        <select class="custom-select" id="top" @bind="TopRows">
+                            <option selected="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
                         </select>
                     </div>
                 </fieldset>        
@@ -25,6 +35,7 @@
                     <thead>
                         <th>Url</th>
                         <th>Date</th>
+                        <th>Request Method</th>
                         <th>Count</th>
                     </thead>
                     <tbody>
@@ -32,10 +43,8 @@
                         {
                             <tr>
                                 <td>@site.Url</td>
-                                <td>@site.Time</td>
-                                <td>
-                                    <NavLink href="@site.ClientAddress.Replace(".", "-")">@site.ClientAddress</NavLink>
-                                </td>
+                                <td>@site.Time.ToShortDateString()</td>
+                                <td>@site.RequestMethod</td>
                                 <td>@site.Count</td>
                             </tr>
                         }

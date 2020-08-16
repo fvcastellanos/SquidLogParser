@@ -84,6 +84,7 @@ namespace SquidLogParser.Services
         private IEnumerable<AccessLogEntry> BuildAccessLog(IEnumerable<AccessEntry> accessEntryLogs)
         {
             return accessEntryLogs
+                .Filter(entry => entry.Time > 0)
                 .Select(entry => {
 
                     return new AccessLogEntry()

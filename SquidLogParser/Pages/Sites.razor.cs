@@ -34,7 +34,7 @@ namespace SquidLogParser.Pages
 
         private void GetTopVisitedSites(int top = DefaultTopRows)
         {
-            var result = QueryLogService.GetTopVisitedSites(top);
+            var result = QueryLogService.GetTopVisitedSitesLastNDays(top);
 
             result.Match(right => {
                 VisitedSites = right;

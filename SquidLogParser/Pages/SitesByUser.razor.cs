@@ -18,9 +18,12 @@ namespace SquidLogParser.Pages
 
         protected string SelectedUser;
 
+        protected int TopRows;
+
         protected override void OnInitialized()
         {
             VisitedSites = new List<AccessLogView>();
+            TopRows = 10;
             GetUsers();
         }
 
@@ -44,7 +47,7 @@ namespace SquidLogParser.Pages
 
         private void GetVisitedSites()
         {
-            var result = QueryLogService.GetTopSitesByUser(SelectedUser);
+            var result = QueryLogService.GetTopSitesByUser(SelectedUser, TopRows);
             result.Match(right => {
                 VisitedSites = right;
             }, left => {
