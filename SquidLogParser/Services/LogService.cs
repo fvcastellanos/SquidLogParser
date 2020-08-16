@@ -84,6 +84,7 @@ namespace SquidLogParser.Services
         private IEnumerable<AccessLogEntry> BuildAccessLog(IEnumerable<AccessEntry> accessEntryLogs)
         {
             return accessEntryLogs
+                .Filter(entry => entry.Time > 0)
                 .Select(entry => {
 
                     return new AccessLogEntry()
@@ -106,7 +107,7 @@ namespace SquidLogParser.Services
 
         private DateTime FromUnixTime(long time)
         {
-            var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(time);
+            var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(time);
             return dateTimeOffset.UtcDateTime;
         }
 

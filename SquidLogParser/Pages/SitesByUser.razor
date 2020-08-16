@@ -1,0 +1,79 @@
+@inherits SitesByUserBase
+
+@page "/sites-by-users/{ParameterUser}"
+@page "/sites-by-users"
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h2>Sites by User</h2>
+            <p>Display information about sites visited by an user in the last [30, 60, 90, 120, 180] days</p>
+            <div class="top-separator">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="users">User</label>
+                        <select class="custom-select" id="users" @bind="SelectedUser">
+                                <option value="">Select user</option>
+                            @foreach (var user in UserList)
+                            {
+                                <option value="@user">@user</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="top">Days</label>
+                        <select class="custom-select" id="top" @bind="LastDays">
+                            <option selected="30">30</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="top">Rows</label>
+                        <select class="custom-select" id="top" @bind="TopRows">
+                            <option selected="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </fieldset>        
+                <input type="button" class="btn btn-primary" value="Query" @onclick="PerformQuery" />        
+            </div>
+            @if (DisplayErrorMessage)
+            {
+                <div class="top-separator">
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        @ErrorMessage
+                    </div>                
+                </div>
+            }
+
+            <div class="top-separator">
+                <table class="table table-striped">
+                    <thead>
+                        <th>Url</th>
+                        <th>Date</th>
+                        <th>Request Method</th>
+                        <th>Count</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in VisitedSites)
+                        {
+                            <tr>
+                                <td>@site.Url</td>
+                                <td>@site.Time.ToShortDateString()</td>
+                                <td>@site.RequestMethod</td>
+                                <td>@site.Count</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

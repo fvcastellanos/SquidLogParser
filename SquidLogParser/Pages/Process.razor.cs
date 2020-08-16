@@ -3,16 +3,14 @@ using SquidLogParser.Services;
 
 namespace SquidLogParser.Pages
 {
-    public class ProcessBase: ComponentBase
+    public class ProcessBase: PageBase
     {
         [Inject]
         protected LogService LogService { get; set; }
 
         protected bool DisplaySuccessMessage;
-        protected bool DisplayErrorMessage;
         protected bool DisplayProcessMessage;
         protected long ProcessedLogs;
-        protected string ErrorMessage;
 
         protected override void OnInitialized()
         {
@@ -30,10 +28,7 @@ namespace SquidLogParser.Pages
             {
                  DisplaySuccessMessage = true;
                  ProcessedLogs = right;
-            }, left => {
-                DisplayErrorMessage = true;
-                ErrorMessage = left;
-            });
+            }, ShowErrorMessage);
         }
 
         // --------------------------------------------------------------------------------------------------
@@ -41,9 +36,8 @@ namespace SquidLogParser.Pages
         private void InitializeVariables()
         {
             DisplaySuccessMessage = false;
-            DisplayErrorMessage = false;
             DisplayProcessMessage = false;
-            ErrorMessage = "";
+            HideErrorMessage();
         }
     }
 }
