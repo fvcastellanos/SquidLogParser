@@ -37,6 +37,21 @@ namespace SquidLogParser.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "filtered_url",
+                schema: "squid_log",
+                columns: table => new
+                {
+                    id = table.Column<long>(nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    url = table.Column<string>(type: "varchar(250)", nullable: true),
+                    created = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_filtered_url", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "log_process_history",
                 schema: "squid_log",
                 columns: table => new
@@ -76,6 +91,13 @@ namespace SquidLogParser.Migrations
                 column: "url");
 
             migrationBuilder.CreateIndex(
+                name: "uq_filtered_url_url",
+                schema: "squid_log",
+                table: "filtered_url",
+                column: "url",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "idx_log_process_history_processed",
                 schema: "squid_log",
                 table: "log_process_history",
@@ -86,6 +108,10 @@ namespace SquidLogParser.Migrations
         {
             migrationBuilder.DropTable(
                 name: "access_log_entry",
+                schema: "squid_log");
+
+            migrationBuilder.DropTable(
+                name: "filtered_url",
                 schema: "squid_log");
 
             migrationBuilder.DropTable(

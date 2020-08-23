@@ -7,6 +7,7 @@ namespace SquidLogParser.Data
     {
         public virtual DbSet<AccessLogEntry> AccessLogs { get; set; }
         public virtual DbSet<LogProcessHistory> LogProcessHistories { get; set; }
+        public virtual DbSet<FilteredUrl> FilteredUrls { get; set; }
 
         public SquidLogContext(DbContextOptions<SquidLogContext> dbContext) : base(dbContext)
         {
@@ -44,6 +45,17 @@ namespace SquidLogParser.Data
             modelBuilder.Entity<LogProcessHistory>()
                 .HasIndex(p => p.Processed)
                 .HasName("idx_log_process_history_processed");
+
+            // FilteredUrl
+
+            modelBuilder.Entity<FilteredUrl>()
+                .HasIndex(p => p.Url)
+                .HasName("uq_filtered_url_url")
+                .IsUnique(true);
+
+            modelBuilder.Entity<FilteredUrl>()
+                .Property(p => p.Created)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

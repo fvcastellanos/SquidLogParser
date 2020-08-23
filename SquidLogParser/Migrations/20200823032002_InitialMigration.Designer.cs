@@ -9,7 +9,7 @@ using SquidLogParser.Data;
 namespace SquidLogParser.Migrations
 {
     [DbContext(typeof(SquidLogContext))]
-    [Migration("20200810033637_InitialMigration")]
+    [Migration("20200823032002_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,6 +90,32 @@ namespace SquidLogParser.Migrations
                         .HasName("idx_access_log_url");
 
                     b.ToTable("access_log_entry");
+                });
+
+            modelBuilder.Entity("SquidLogParser.Data.FilteredUrl", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Url")
+                        .HasColumnName("url")
+                        .HasColumnType("varchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Url")
+                        .IsUnique()
+                        .HasName("uq_filtered_url_url");
+
+                    b.ToTable("filtered_url");
                 });
 
             modelBuilder.Entity("SquidLogParser.Data.LogProcessHistory", b =>
