@@ -12,6 +12,7 @@ namespace SquidLogParser.Data
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
+        [Required]
         [Column("url", TypeName = "varchar(250)")]
         public string Url { get; set; }
 

@@ -8,6 +8,7 @@ using FluentAssertions;
 using LanguageExt.UnitTesting;
 using System;
 using LanguageExt;
+using SquidLogParser.Domain;
 
 namespace SquidLogParser.Tests.Services
 {
@@ -116,7 +117,7 @@ namespace SquidLogParser.Tests.Services
             var result = _filterUrlService.GetUrls("");
 
             result.ShouldBeRight(right => right.Should()
-                .BeEquivalentTo(BuildFilteredUrl(TestSite))
+                .BeEquivalentTo(BuildFilteredUrlViewList(TestSite))
             );
 
             DbContextMock.Verify(context => context.FilteredUrls);
@@ -131,7 +132,7 @@ namespace SquidLogParser.Tests.Services
             var result = _filterUrlService.GetUrls("test-site");
 
             result.ShouldBeRight(right => right.Should()
-                .BeEquivalentTo(BuildFilteredUrl(TestSite))
+                .BeEquivalentTo(BuildFilteredUrlViewList(TestSite))
             );
 
             DbContextMock.Verify(context => context.FilteredUrls);
@@ -160,6 +161,18 @@ namespace SquidLogParser.Tests.Services
             {
                 new FilteredUrl()
                 {
+                    Url = url
+                }
+            };
+        }
+
+        private List<FilteredUrlView> BuildFilteredUrlViewList(string url)
+        {
+            return new List<FilteredUrlView>()
+            {
+                new FilteredUrlView()
+                {
+                    Id = 0,
                     Url = url
                 }
             };

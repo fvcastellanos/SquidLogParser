@@ -54,6 +54,10 @@ namespace SquidLogParser.Data
                 .IsUnique(true);
 
             modelBuilder.Entity<FilteredUrl>()
+                .Property(p => p.Url)
+                .IsRequired();
+
+            modelBuilder.Entity<FilteredUrl>()
                 .Property(p => p.Created)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }

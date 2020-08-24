@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using Microsoft.Extensions.Logging;
 using SquidLogParser.Data;
+using SquidLogParser.Domain;
 
 namespace SquidLogParser.Services
 {
@@ -73,18 +74,20 @@ namespace SquidLogParser.Services
             }
         }
 
-        public Either<string, List<FilteredUrl>> GetUrls(string url)
+        public Either<string, List<FilteredUrlView>> GetUrls(string url)
         {
             try
             {
                 if (string.IsNullOrEmpty(url))
                 {
                     return _dbContext.FilteredUrls
+                        .Select(BuildFilteredUrlView)
                         .ToList();
                 }
 
                 return _dbContext.FilteredUrls
                     .Where(filteredUrl => filteredUrl.Url.Contains(url))
+                    .Select(BuildFilteredUrlView)
                     .ToList();
             }
             catch (Exception ex)
@@ -92,6 +95,17 @@ namespace SquidLogParser.Services
                 _logger.LogError("Can't get URL list - {0}", ex.Message);
                 return "Can't get URL list";
             }
+        }
+
+        // ------------------------------------------------------------------------------------------
+
+        private FilteredUrlView BuildFilteredUrlView(FilteredUrl filteredUrl)
+        {
+            return new FilteredUrlView()
+            {
+                Id = filteredUrl.Id,
+                Url = filteredUrl.Url
+            };
         }
     }
 }

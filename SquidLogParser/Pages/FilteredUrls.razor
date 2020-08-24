@@ -1,0 +1,116 @@
+@inherits FilteredUrlsBase
+
+@page "/filtered-urls"
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h2>Filtered Urls</h2>
+            <p>List of Urls that will be removed from Logs</p>
+
+            <div class="top-separator">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="url">Url</label>
+                        <input type="text" id="url" class="form-control" placeholder="Enter a URL" @bind="Url" />
+                    </div>
+                </fieldset>                
+                <button class="btn btn-primary" @onclick="GetUrls">Get URLs</button>
+                <button class="btn btn-secondary" @onclick="ShowAddModal">Add URL</button>
+            </div>
+
+            @if (DisplayErrorMessage)
+            {
+                <div class="top-separator">
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        @ErrorMessage
+                    </div>                
+                </div>
+            }
+
+            <div class="top-separator">
+                <table class="table table-striped">
+                    <thead>
+                        <th>Url</th>
+                        <th>-</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in FilteredUrls)
+                        {
+                            <tr>
+                                <td>@site.Url</td>
+                                <td><input type="button" class="btn btn-danger" value="Delete"  @onclick="() => GetDeleteInformation(site.Id, site.Url)" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (AddModal)
+            {
+                <div class="modal" tabindex="-1" role="dialog" style="display: block">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Url</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="HideAddModal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                @if (HasModalError)
+                                {
+                                    <div class="alert alert-danger error-message" role="alert">
+                                        @ModalErrorMessage
+                                    </div>
+                                }
+                                <EditForm Model="@DataModel" OnValidSubmit="AddUrl">
+                                    <DataAnnotationsValidator/>
+                                    <ValidationSummary/>
+                                    <div class="form-group">
+                                        <label for="site">Url</label>
+                                        <input type="text" class="form-control" id="site" placeholder="Url" @bind="DataModel.Url"/>
+                                    </div>                                        
+                                    <input type="submit" class="btn btn-primary" value="Save"/>
+                                    <input type="button" class="btn" value="Cancel" @onclick="HideAddModal"/>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            }
+
+            @if (DeleteModal)
+            {
+                <div class="modal" tabindex="-1" role="dialog" style="display: block">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="HideDeleteModal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                @if (HasModalError)
+                                {
+                                    <div class="alert alert-danger error-message" role="alert">
+                                        @ModalErrorMessage
+                                    </div>
+                                }
+                                
+                                <p>Are you sure to delete Url: @DeleteView.Name</p>
+                                
+                                <input type="submit" class="btn btn-danger" value="Delete" @onclick="DeleteUrl"/>
+                                <input type="button" class="btn" value="Cancel" @onclick="HideDeleteModal"/>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
