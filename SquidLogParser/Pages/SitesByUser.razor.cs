@@ -5,7 +5,7 @@ using SquidLogParser.Services;
 
 namespace SquidLogParser.Pages
 {
-    public class SitesByUserBase: PageBase
+    public class SitesByUserBase: QueryBase
     {
         [Inject]
         protected QueryLogService QueryLogService { get; set; }
@@ -36,6 +36,12 @@ namespace SquidLogParser.Pages
         {
             GetVisitedSites();
         }
+
+        protected override void RefreshResults()
+        {
+            GetVisitedSites();
+        }
+
 
         // ---------------------------------------------------------------------------------------------
 

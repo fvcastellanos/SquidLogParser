@@ -5,7 +5,7 @@ using SquidLogParser.Services;
 
 namespace SquidLogParser.Pages
 {
-    public class SitesBase: PageBase
+    public class SitesBase: QueryBase
     {
         [Inject]
         protected QueryLogService QueryLogService { get; set; }
@@ -33,6 +33,12 @@ namespace SquidLogParser.Pages
         public void LastDaysChange(ChangeEventArgs eventArgs)
         {
             LastDays = int.Parse(eventArgs.Value.ToString());
+            GetTopVisitedSites();
+        }
+
+        protected override void RefreshResults()
+        {
+            HideErrorMessage();
             GetTopVisitedSites();
         }
 

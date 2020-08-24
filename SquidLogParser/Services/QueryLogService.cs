@@ -25,6 +25,8 @@ namespace SquidLogParser.Services
             {
                 var queryResult = from accessLog in _dbContext.AccessLogs
                     where accessLog.Time >= LastNDays(days)
+                        && !(from filteredUrl in _dbContext.FilteredUrls select filteredUrl.Url)
+                                .Contains(accessLog.Url)
                     group accessLog by new { 
                         accessLog.Url, 
                         accessLog.Time.Date, 
@@ -62,6 +64,8 @@ namespace SquidLogParser.Services
                 var queryResult = from accessLog in _dbContext.AccessLogs
                     where accessLog.ClientAddress.Equals(user)
                         && accessLog.Time >= LastNDays(days)
+                        && !(from filteredUrl in _dbContext.FilteredUrls select filteredUrl.Url)
+                            .Contains(accessLog.Url)
                     group accessLog by new { 
                         accessLog.Url, 
                         accessLog.Time.Date, 
@@ -85,20 +89,7 @@ namespace SquidLogParser.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError("can't get most visited sites for user {0} - ", user, ex);
-                return string.Format("Can't get top: {0} visited sites for user {1}", top, user);
-            }
-        }
-
-        public Either<string, IEnumerable<AccessLogView>> Foo(int month, int year, string user, int top = 10)
-        {
-            try
-            {
-                return new List<AccessLogView>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("can't get most visited sites for user {0} - ", user, ex);
+                _logger.LogError("can't get most visited sites for user {0} - {1}", user, ex.Message);
                 return string.Format("Can't get top: {0} visited sites for user {1}", top, user);
             }
         }
@@ -118,6 +109,8 @@ namespace SquidLogParser.Services
                 return "Can't get users";
             }
         }
+
+        // -----------------------------------------------------------------------------------------------
 
         private DateTime LastNDays(int days)
         {
