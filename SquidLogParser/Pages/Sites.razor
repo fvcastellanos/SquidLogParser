@@ -42,6 +42,7 @@
             <div class="top-separator">
                 <table class="table table-striped">
                     <thead>
+                        <th>-</th>
                         <th>Url</th>
                         <th>Date</th>
                         <th>Client</th>
@@ -54,6 +55,7 @@
                             var userUrl="sites-by-users/" + site.ClientAddress.Replace(".", "-");
                             
                             <tr>
+                                <td><input type="button" class="btn btn-secondary" value="Filter" @onclick="() => AddFilter(site.Url)" /></td>
                                 <td>@site.Url</td>
                                 <td>@site.Time.ToShortDateString()</td>
                                 <td>

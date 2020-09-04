@@ -56,6 +56,7 @@ namespace SquidLogParser
 
             services.AddScoped<LogService>();
             services.AddScoped<QueryLogService>();
+            services.AddScoped<FilterUrlService>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();

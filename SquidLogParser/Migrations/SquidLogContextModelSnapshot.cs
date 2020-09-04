@@ -90,6 +90,32 @@ namespace SquidLogParser.Migrations
                     b.ToTable("access_log_entry");
                 });
 
+            modelBuilder.Entity("SquidLogParser.Data.FilteredUrl", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Url")
+                        .HasColumnName("url")
+                        .HasColumnType("varchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Url")
+                        .IsUnique()
+                        .HasName("uq_filtered_url_url");
+
+                    b.ToTable("filtered_url");
+                });
+
             modelBuilder.Entity("SquidLogParser.Data.LogProcessHistory", b =>
                 {
                     b.Property<long>("Id")

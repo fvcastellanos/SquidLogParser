@@ -37,7 +37,7 @@ namespace SquidLogParser.Services
                         Count = groupedLogs.Count()
                     };
 
-                return queryResult
+                var transformResult = queryResult
                     .Select(result => new AccessLogView()
                     {
                         Url = result.Key.Url,
@@ -45,8 +45,12 @@ namespace SquidLogParser.Services
                         ClientAddress = result.Key.ClientAddress,
                         RequestMethod = result.Key.RequestMethod,
                         Count = result.Count                        
-                    }).Take(top)
-                    .ToList();                    
+                    }).ToList();                    
+
+                return transformResult
+                    .Where(result => !IsFilteredUrl(result.Url))
+                    .Take(top)
+                    .ToList();
             }
             catch(Exception ex)
             {
@@ -73,32 +77,23 @@ namespace SquidLogParser.Services
                         Count = groupedLogs.Count()
                     };
 
-                return queryResult
+                var transformResult = queryResult
                     .Select(result => new AccessLogView()
                     {
                         Url = result.Key.Url,
                         Time = result.Key.Date,
                         RequestMethod = result.Key.RequestMethod,
                         Count = result.Count                        
-                    }).Take(top)
-                    .ToList();                    
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("can't get most visited sites for user {0} - ", user, ex);
-                return string.Format("Can't get top: {0} visited sites for user {1}", top, user);
-            }
-        }
+                    }).ToList();                    
 
-        public Either<string, IEnumerable<AccessLogView>> Foo(int month, int year, string user, int top = 10)
-        {
-            try
-            {
-                return new List<AccessLogView>();
+                return transformResult
+                    .Where(result => !IsFilteredUrl(result.Url))
+                    .Take(top)
+                    .ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError("can't get most visited sites for user {0} - ", user, ex);
+                _logger.LogError("can't get most visited sites for user {0} - {1}", user, ex.Message);
                 return string.Format("Can't get top: {0} visited sites for user {1}", top, user);
             }
         }
@@ -119,9 +114,17 @@ namespace SquidLogParser.Services
             }
         }
 
+        // -----------------------------------------------------------------------------------------------
+
         private DateTime LastNDays(int days)
         {
             return DateTime.Today.AddDays(days * -1);
+        }
+
+        private bool IsFilteredUrl(string url)
+        {
+            return _dbContext.FilteredUrls
+                .Exists(filteredUrl => url.Contains(filteredUrl.Url));
         }
     }
 }
