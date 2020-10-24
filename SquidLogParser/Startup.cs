@@ -13,7 +13,9 @@ using Microsoft.Extensions.Hosting;
 using SquidLogParser.Data;
 using SquidLogParser.AccessLog;
 using SquidLogParser.Services;
+using SquidLogParser.Configurations;
 using Microsoft.Extensions.Logging;
+
 
 namespace SquidLogParser
 {
@@ -34,7 +36,7 @@ namespace SquidLogParser
             services.AddDbContextPool<SquidLogContext>(options =>
             {
                 var connectionString = Environment.GetEnvironmentVariable("SQUID_LOG_PARSER_APP_CONNECTION_STRING") ?? 
-                                       "server=localhost;database=squid_log;user=root;password=r00t";
+                                       "server=mysql-host;database=squid_log;user=root;password=r00t";
                 options.UseMySQL(connectionString);
             });
 
@@ -53,6 +55,8 @@ namespace SquidLogParser
 
                 return new AccessLogParser(loggerFactory.CreateLogger<AccessLogParser>());
             });
+
+            services.AddRabbitMqConnectionFactory();
 
             services.AddScoped<LogService>();
             services.AddScoped<QueryLogService>();
