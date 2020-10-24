@@ -57,6 +57,7 @@ namespace SquidLogParser
             });
 
             services.AddRabbitMqConnectionFactory();
+            services.AddQueueConsumer();
 
             services.AddScoped<LogService>();
             services.AddScoped<QueryLogService>();

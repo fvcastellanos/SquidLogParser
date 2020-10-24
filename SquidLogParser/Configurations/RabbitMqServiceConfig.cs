@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using SquidLogParser.RabbitMq;
 
 namespace SquidLogParser.Configurations
 {
@@ -11,7 +12,6 @@ namespace SquidLogParser.Configurations
         public static IServiceCollection AddRabbitMqConnectionFactory(this IServiceCollection services)
         {
             var provider = services.BuildServiceProvider();
-            var configuration = provider.GetRequiredService<IConfiguration>();
 
             var rabbitMqServer = Environment.GetEnvironmentVariable("RABBIT_SERVER") ?? 
                 "cloud.cavitos.net";
@@ -31,6 +31,19 @@ namespace SquidLogParser.Configurations
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(5),
                 DispatchConsumersAsync = true
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddQueueConsumer(this IServiceCollection services)
+        {
+            var provider = services.BuildServiceProvider();
+            var loggerFactory = provider.GetService<ILoggerFactory>();
+            var connectionFactory = provider.GetService<IConnectionFactory>();
+
+            var logger = loggerFactory.CreateLogger<QueueConsumer>();
+
+            services.AddSingleton<QueueConsumer>(new QueueConsumer(logger, connectionFactory));
 
             return services;
         }
