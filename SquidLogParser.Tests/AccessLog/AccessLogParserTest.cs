@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -25,6 +26,21 @@ namespace SquidLogParser.Tests.AccessLog
 
             entries.Should()
                 .BeEquivalentTo(LogFileFixture.GetAccessEntries());
+        }
+
+        [Test]
+        public void TestParseLog()
+        {
+            var log = LogFileFixture.ReadLogs()
+                .First();
+
+            var entry = _accessLogParser.ParseLog(log);
+
+            var expectedEntry = LogFileFixture.GetAccessEntries()
+                .First();
+
+            entry.Should()
+                .BeEquivalentTo(expectedEntry);
         }
     }
 }

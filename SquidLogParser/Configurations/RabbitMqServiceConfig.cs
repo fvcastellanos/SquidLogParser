@@ -3,7 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using SquidLogParser.AccessLog;
+using SquidLogParser.Data;
 using SquidLogParser.RabbitMq;
+using SquidLogParser.Services;
 
 namespace SquidLogParser.Configurations
 {
@@ -11,8 +14,6 @@ namespace SquidLogParser.Configurations
     {
         public static IServiceCollection AddRabbitMqConnectionFactory(this IServiceCollection services)
         {
-            var provider = services.BuildServiceProvider();
-
             var rabbitMqServer = Environment.GetEnvironmentVariable("RABBIT_SERVER") ?? 
                 "cloud.cavitos.net";
 
@@ -40,27 +41,15 @@ namespace SquidLogParser.Configurations
             var provider = services.BuildServiceProvider();
             var loggerFactory = provider.GetService<ILoggerFactory>();
             var connectionFactory = provider.GetService<IConnectionFactory>();
+            var logParser = provider.GetService<IAccessLogParser>();
+            var dbContext = provider.GetService<SquidLogContext>();
 
-            var logger = loggerFactory.CreateLogger<QueueConsumer>();
+            var logger = loggerFactory.CreateLogger<SquiqLogConsumer>();
 
-            services.AddSingleton<QueueConsumer>(new QueueConsumer(logger, connectionFactory));
+            services.AddSingleton<SquiqLogConsumer>(new SquiqLogConsumer(logger, 
+                connectionFactory, logParser, dbContext));
 
             return services;
         }
-
-        // public static IServiceCollection AddRabbitMqTemplate(this IServiceCollection services)
-        // {
-        //     var provider = services.BuildServiceProvider();
-        //     var configuration = provider.GetRequiredService<IConfiguration>();
-        //     var connectionFactory = provider.GetRequiredService<IConnectionFactory>();
-        //     var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-
-        //     var exchange = configuration["RabbitMq:Exchange"];
-        //     var queue = configuration["RabbitMq:CommandQueue"];
-
-        //     services.AddSingleton<IRabbitMqTemplate>(new RabbitMqTemplate(loggerFactory, connectionFactory, exchange, queue));
-
-        //     return services;
-        // }        
     }
 }

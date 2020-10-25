@@ -60,6 +60,30 @@ namespace SquidLogParser.Services
             }
         }
 
+        public Either<string, AccessEntry> ProcessLogEntry(string log)
+        {
+            try 
+            {
+                _logger.LogInformation("Log entry received: {0}", log);
+
+                var entry = _accessLogParser.ParseLog(log);
+
+                var accessLog = BuildAccessLogEntry(entry);
+
+                _dbContext.AccessLogs.Add(accessLog);
+                _dbContext.SaveChanges();
+
+                _logger.LogInformation("Entry log: {0} has been stored in db", log);
+
+                return entry;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("can't process log: {0} - ", log, ex);
+                return String.Format("Can't process log entry: {0}", log);
+            }
+        }
+
         // ------------------------------------------------------------------------------------------------
 
         private IEnumerable<string> GetLogs(long linesProcessed)
@@ -85,27 +109,29 @@ namespace SquidLogParser.Services
         {
             return accessEntryLogs
                 .Filter(entry => entry.Time > 0)
-                .Select(entry => {
-
-                    return new AccessLogEntry()
-                    {
-                        Time = FromUnixTime(entry.Time),
-                        Milliseconds = entry.Millis,
-                        Duration = entry.Elapsed,
-                        ClientAddress = entry.RemoteHost,
-                        ResultCode = entry.Status,
-                        Bytes = entry.Bytes,
-                        RequestMethod = entry.Method,
-                        Url = entry.Url,
-                        User = entry.User,
-                        Peer = entry.Peer,
-                        Type = entry.Type
-                    };
-
-                }).ToList();
+                .Select(BuildAccessLogEntry)
+                .ToList();
         }
 
-        private DateTime FromUnixTime(long time)
+        public static AccessLogEntry BuildAccessLogEntry(AccessEntry entry)
+        {
+            return new AccessLogEntry()
+            {
+                Time = FromUnixTime(entry.Time),
+                Milliseconds = entry.Millis,
+                Duration = entry.Elapsed,
+                ClientAddress = entry.RemoteHost,
+                ResultCode = entry.Status,
+                Bytes = entry.Bytes,
+                RequestMethod = entry.Method,
+                Url = entry.Url,
+                User = entry.User,
+                Peer = entry.Peer,
+                Type = entry.Type
+            };
+        }
+
+        private static DateTime FromUnixTime(long time)
         {
             var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(time);
             return dateTimeOffset.UtcDateTime;

@@ -22,6 +22,11 @@ namespace SquidLogParser.AccessLog
                 .ToList();
         }
 
+        public AccessEntry ParseLog(string log)
+        {
+            return parseLine(log);
+        }
+
         // ------------------------------------------------------------------------------------
 
         private AccessEntry parseLine(string entry)

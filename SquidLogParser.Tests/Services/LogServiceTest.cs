@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using LanguageExt.UnitTesting;
 using Moq;
 using Moq.EntityFrameworkCore;
 using NUnit.Framework;
@@ -40,7 +43,9 @@ namespace SquidLogParser.Tests.Services
             ExpectSaveLogEntries();
             ExpectSaveProcessHistory();
 
-            _logService.IngestLogs();
+            var result = _logService.IngestLogs();
+
+            result.ShouldBeRight();
 
             VerifyDbContext();
             VerifyFullLogs();
@@ -54,10 +59,67 @@ namespace SquidLogParser.Tests.Services
             ExpectSaveLogEntries();
             ExpectSaveProcessHistory();
 
-            _logService.IngestLogs();
+            var result = _logService.IngestLogs();
+
+            result.ShouldBeRight();
 
             VerifyDbContext();
             VerifyLogsUsingStartIndex();
+        }
+
+        [Test]
+        public void TestIngestThrowsException()
+        {
+            ExpectFullLogs();
+            ExpectEmtpyDbSets();
+
+            DbContextMock.Setup(context => context.AccessLogs
+                .AddRange(It.IsAny<IEnumerable<AccessLogEntry>>()));
+
+            DbContextMock.Setup(context => context.SaveChanges())
+                .Throws(new Exception("test exception"));
+
+            var result = _logService.IngestLogs();
+
+            result.ShouldBeLeft();
+            
+            VerifyFullLogs();
+        }
+
+        [Test]
+        public void TestProcessEntryLog()
+        {
+            var entry = LogFileFixture.ReadLogs()
+                .First();
+
+            ExpectFullLogs();
+            ExpectSaveLogEntry();
+
+            _logService.ProcessLogEntry(entry);
+
+            VerifyFullLogs();
+            VerifyLogEntrySaved();
+        }
+
+        [Test]
+        public void TestProcessEntryLogThrowsException()
+        {
+            var entry = LogFileFixture.ReadLogs()
+                .First();
+
+            ExpectFullLogs();
+
+            DbContextMock.Setup(context => context.AccessLogs
+                .Add(It.IsAny<AccessLogEntry>()));
+
+            DbContextMock.Setup(context => context.SaveChanges())
+                .Throws(new Exception("test exception"));
+
+            var result = _logService.ProcessLogEntry(entry);
+
+            result.ShouldBeLeft();
+
+            VerifyFullLogs();
         }
 
         // --------------------------------------------------------------------------------------------------
@@ -98,6 +160,12 @@ namespace SquidLogParser.Tests.Services
             DbContextMock.Setup(context => context.SaveChanges());
         }
 
+        private void ExpectSaveLogEntry()
+        {
+            DbContextMock.Setup(context => context.AccessLogs.Add(It.IsAny<AccessLogEntry>()));
+            DbContextMock.Setup(context => context.SaveChanges());
+        }
+
         private void ExpectSaveProcessHistory()
         {
             DbContextMock.Setup(context => context.LogProcessHistories.Add(It.IsAny<LogProcessHistory>()));
@@ -109,6 +177,12 @@ namespace SquidLogParser.Tests.Services
             DbContextMock.Verify(context => context.AccessLogs.AddRange(It.IsAny<IEnumerable<AccessLogEntry>>()));
             DbContextMock.Verify(context => context.LogProcessHistories);
             DbContextMock.Verify(context => context.SaveChanges());            
+        }
+
+        private void VerifyLogEntrySaved()
+        {
+            DbContextMock.Setup(context => context.AccessLogs.Add(It.IsAny<AccessLogEntry>()));
+            DbContextMock.Setup(context => context.SaveChanges());
         }
 
         private void VerifyFullLogs()
